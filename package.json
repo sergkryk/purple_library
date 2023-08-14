@@ -1,0 +1,23 @@
+{
+  "name": "purple_library",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sergkryk/purple_library.git"
+  },
+  "author": "sergkryk",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/sergkryk/purple_library/issues"
+  },
+  "homepage": "https://github.com/sergkryk/purple_library#readme",
+  "devDependencies": {
+    "live-server": "^1.2.2",
+    "rollup": "^3.27.2"
+  }
+}
