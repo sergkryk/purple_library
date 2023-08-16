@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/sergkryk/purple_library#readme",
   "devDependencies": {
+    "eslint": "^8.47.0",
     "live-server": "^1.2.2",
     "rollup": "^3.27.2"
   }
