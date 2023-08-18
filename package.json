@@ -3,7 +3,10 @@
   "version": "1.0.0",
   "description": "",
   "main": "app.js",
+  "type": "module",
   "scripts": {
+    "start": "live-server",
+    "build": "rollup -c --watch",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -17,8 +20,14 @@
   },
   "homepage": "https://github.com/sergkryk/purple_library#readme",
   "devDependencies": {
+    "@rollup/plugin-node-resolve": "^15.1.0",
     "eslint": "^8.47.0",
     "live-server": "^1.2.2",
     "rollup": "^3.27.2"
+  },
+  "dependencies": {
+    "on-change": "^4.0.2",
+    "postcss": "^8.4.28",
+    "rollup-plugin-postcss": "^4.0.2"
   }
 }
