@@ -16,5 +16,6 @@ export default class MainView extends AbstractView {
     const el = document.createElement('h1');
     el.textContent = "Поиск книг";
     this.app.append(el);
+    this.appState.favorites.push('Hello')
   }
 }

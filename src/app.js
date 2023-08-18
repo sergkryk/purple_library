@@ -1,3 +1,4 @@
+import onChange from "on-change";
 import MainView from "./common/main/main-view.js";
 
 class App {
@@ -9,7 +10,12 @@ class App {
   }
   constructor() {
     window.addEventListener('hashchange', this.route.bind(this));
+    this.appState = onChange(this.appState, this.appStateHook.bind(this))
     this.route();
+  }
+
+  appStateHook(path) {
+    console.log(path);
   }
 
   route() {
