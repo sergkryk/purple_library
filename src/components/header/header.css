@@ -1,4 +1,6 @@
 .header {
+  margin-bottom: 36px;
+  
   display: flex;
   flex-flow: row nowrap;
 

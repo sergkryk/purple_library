@@ -1058,7 +1058,7 @@
 	class HeaderSearch {
 	  create() {
 	    const item = new AbstractNode('li', ['nav__item']).create();
-	    item.innerHTML = `<div class="nav__item-logo"><svg width="20" height="20" fill="none"><use xlink:href="#icon-search"></use></svg></div><a href="#" class="nav__item-link">Поиск книг</a>`;
+	    item.innerHTML = `<div class="nav__item-logo"><svg width="20" height="20" viewBox="0 0 20 20"><use xlink:href="#icon-search"></use></svg></div><a href="#" class="nav__item-link">Поиск книг</a>`;
 	    return item;
 	  }
 	}
@@ -1096,6 +1096,35 @@
 	  }
 	}
 
+	class Search {
+	  constructor() {
+	    this.form = new AbstractNode("form", ["search"]).create();
+	    this.wrapper = new AbstractNode("div", ["search__wrapper"]).create();
+	    this.input = new AbstractNode("input", ["search__input"]).create();
+	    this.label = new AbstractNode("label", ["search__label"]).create();
+	    this.button = new AbstractNode("button", ["search__button"]).create();
+	  }
+
+	  create() {
+	    this.button.innerHTML =
+	      '<svg width="32" height="32" viewBox="0 0 20 20"><use xlink:href="#icon-search"></use></svg>';
+	    this.label.innerHTML =
+	      '<svg width="24" height="24" viewBox="0 0 20 20"><use xlink:href="#icon-search"></use></svg>';
+	    this.label.setAttribute("for", "search");
+	    this.button.setAttribute("type", "submit");
+	    this.input.setAttribute("type", "text");
+	    this.input.setAttribute("name", "user-query");
+	    this.input.setAttribute("id", "search");
+	    this.input.setAttribute("placeholder", "Найти книгу или автора...");
+	    this.wrapper.prepend(this.input);
+	    this.wrapper.append(this.button);
+	    this.wrapper.append(this.label);
+	    this.form.append(this.wrapper);
+
+	    return this.form;
+	  }
+	}
+
 	class MainView extends AbstractView {
 	  state = {
 	    list: [],
@@ -1109,6 +1138,7 @@
 	    this.appState = onChange(this.appState, this.appStateHook.bind(this));
 	    this.setTitle("Поиск книг");
 	    this.header = new Header(this.appState);
+	    this.search = new Search();
 	  }
 	  appStateHook(path) {
 	    console.log(path);
@@ -1116,9 +1146,7 @@
 	  }
 	  render() {
 	    this.app.prepend(this.header.create());
-	    const el = document.createElement("h1");
-	    el.textContent = "Поиск книг";
-	    this.app.append(el);
+	    this.app.append(this.search.create());
 	  }
 	}
 
