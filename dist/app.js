@@ -1013,23 +1013,112 @@
 	  }
 	}
 
+	class AbstractNode {
+	  constructor(node, nodeClasses) {
+	    this.classList = nodeClasses;
+	    this.node = document.createElement(node);
+	    this.node.classList.add(...this.classList);
+	  }
+
+	  create() {
+	    return this.node;
+	  }
+	}
+
+	class FavoritesCounter {
+	  constructor(count) {
+	    this.count = count;
+	    this.node = new AbstractNode("span", ["nav__counter"]).create();
+	    this.node.textContent = count;
+	  }
+	  create() {
+	    return this.node;
+	  }
+	  update(count) {
+	    this.node.textContent = count;
+	  }
+	}
+
+	class HeaderFavorites {
+	  constructor(counter) {
+	    this.counter = counter;
+	    this.element = new AbstractNode("li", ["nav__item"]).create();
+	  }
+	  create() {
+	    this.element.innerHTML = `
+      <div class="nav__item-logo">
+        <svg width="20" height="20" fill="none"><use xlink:href="#icon-favorites"></use></svg>
+      </div>
+      <a href="#" class="nav__item-link">Избранное</a>`;
+	    this.element.appendChild(this.counter.create());
+	    return this.element;
+	  }
+	}
+
+	class HeaderSearch {
+	  create() {
+	    const item = new AbstractNode('li', ['nav__item']).create();
+	    item.innerHTML = `<div class="nav__item-logo"><svg width="20" height="20" fill="none"><use xlink:href="#icon-search"></use></svg></div><a href="#" class="nav__item-link">Поиск книг</a>`;
+	    return item;
+	  }
+	}
+
+	class Logo {
+	  create() {
+	    const logo = new AbstractNode('div', ['header__logo']).create();
+	    logo.innerHTML = `<svg width="40" height="40" fill="none"><use xlink:href="#icon-logo"></use></svg>`;
+	    return logo;
+	  }
+	}
+
+	class Header {
+	  constructor(appState) {
+	    this.appState = appState;
+	    this.counter = new FavoritesCounter(this.appState.favorites.length);
+	    this.header = new AbstractNode("header", ["header"]).create();
+	    this.headerNav = new AbstractNode("nav", ["header__nav", "nav"]).create();
+	    this.headerList = new AbstractNode("header", ["nav__list"]).create();
+	    this.headerLogo = new Logo().create();
+	    this.headerSearch = new HeaderSearch().create();
+	    this.headerFavourites = new HeaderFavorites(this.counter).create();
+	  }
+
+	  create() {
+	    this.headerList.appendChild(this.headerSearch);
+	    this.headerList.appendChild(this.headerFavourites);
+	    this.headerNav.appendChild(this.headerList);
+	    this.header.appendChild(this.headerLogo);
+	    this.header.appendChild(this.headerNav);
+	    return this.header;
+	  }
+	  updateCounter() {
+	    this.counter.update(this.appState.favorites.length);
+	  }
+	}
+
 	class MainView extends AbstractView {
 	  state = {
 	    list: [],
 	    isLoading: false,
 	    searchQuery: null,
 	    offset: 0,
-	  }
+	  };
 	  constructor(appState) {
 	    super();
-	    this.appState = appState; 
-	    this.setTitle('Поиск книг');
+	    this.appState = appState;
+	    this.appState = onChange(this.appState, this.appStateHook.bind(this));
+	    this.setTitle("Поиск книг");
+	    this.header = new Header(this.appState);
+	  }
+	  appStateHook(path) {
+	    console.log(path);
+	    this.header.updateCounter();
 	  }
 	  render() {
-	    const el = document.createElement('h1');
+	    this.app.prepend(this.header.create());
+	    const el = document.createElement("h1");
 	    el.textContent = "Поиск книг";
 	    this.app.append(el);
-	    this.appState.favorites.push('Hello');
 	  }
 	}
 
@@ -1042,14 +1131,8 @@
 	  }
 	  constructor() {
 	    window.addEventListener('hashchange', this.route.bind(this));
-	    this.appState = onChange(this.appState, this.appStateHook.bind(this));
 	    this.route();
 	  }
-
-	  appStateHook(path) {
-	    console.log(path);
-	  }
-
 	  route() {
 	    this.currentView?.destroy();
 	    const view = this.routes.find(route => route.path == location.hash).view;
