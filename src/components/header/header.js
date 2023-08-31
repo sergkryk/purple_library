@@ -1,3 +1,4 @@
+import './header.css';
 import AbstractNode from "../../common/abstract-node.js";
 import FavoritesCounter from "../favorites-counter/favorites-counter.js";
 import HeaderFavorites from "../header-favorites/header-favorites.js";
@@ -10,7 +11,7 @@ export default class Header {
     this.counter = new FavoritesCounter(this.appState.favorites.length);
     this.header = new AbstractNode("header", ["header"]).create();
     this.headerNav = new AbstractNode("nav", ["header__nav", "nav"]).create();
-    this.headerList = new AbstractNode("header", ["nav__list"]).create();
+    this.headerList = new AbstractNode("ul", ["nav__list"]).create();
     this.headerLogo = new Logo().create();
     this.headerSearch = new HeaderSearch().create();
     this.headerFavourites = new HeaderFavorites(this.counter).create();

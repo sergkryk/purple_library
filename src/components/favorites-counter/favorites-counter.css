@@ -1,0 +1,14 @@
+.nav__counter {
+  width: 24px;
+  height: 24px;
+
+  margin-left: 12px;
+
+  border-radius: 50%;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  border: 1px solid #121212;
+}

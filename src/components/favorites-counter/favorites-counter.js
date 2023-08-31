@@ -1,3 +1,4 @@
+import './favorites-counter.css'
 import AbstractNode from "../../common/abstract-node";
 
 export default class FavoritesCounter {

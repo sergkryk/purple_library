@@ -1,3 +1,6 @@
+import './app.css';
+import './normalize.css';
+
 import MainView from "./views/main/main-view.js";
 
 class App {
