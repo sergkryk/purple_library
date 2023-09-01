@@ -1097,7 +1097,8 @@
 	}
 
 	class Search {
-	  constructor() {
+	  constructor(state) {
+	    this.state = state;
 	    this.form = new AbstractNode("form", ["search"]).create();
 	    this.wrapper = new AbstractNode("div", ["search__wrapper"]).create();
 	    this.input = new AbstractNode("input", ["search__input"]).create();
@@ -1120,8 +1121,68 @@
 	    this.wrapper.append(this.button);
 	    this.wrapper.append(this.label);
 	    this.form.append(this.wrapper);
-
+	    this.form.addEventListener('submit', this.submitHandler.bind(this));
 	    return this.form;
+	  }
+	  submitHandler(event) {
+	    event.preventDefault();
+	    this.state.searchQuery = this.input.value;
+	  }
+	}
+
+	class BookCard {
+	  constructor(book) {
+	    this.book = book;
+	    this.card = new AbstractNode("li", ["books__list-item", "book-card"]).create();
+	    this.title = new AbstractNode("h3", ["book-card__title"]).create();
+	    this.genre = new AbstractNode("p", ["book-card__genre"]).create();
+	    this.author = new AbstractNode("p", ["book-card__author"]).create();
+	    this.button = new AbstractNode("button", ["book-card__favorite"]).create();
+	    this.cover = new AbstractNode("img", ["book-card__cover"]).create();
+	    this.content = new AbstractNode("div", ["book-card__content"]).create();
+	    this.wrapper = new AbstractNode("div", ["book-card__cover-wrapper"]).create();
+	  }
+
+	  create() {
+	    this.book?.cover_i ? this.cover.setAttribute("src", `https://covers.openlibrary.org/b/id/${this.book.cover_i}-M.jpg`) : "";
+	    this.button.innerHTML = `<svg width="20" height="20" viewBox="0 0 20 20"><use xlink:href="#icon-favorites"></use></svg>`;
+	    this.title.textContent = this.book.title;
+	    this.author.textContent = this.book.author_name;
+	    this.genre.textContent = this.book?.subject ? this.book.subject[0] : "";
+	    this.content.append(this.genre, this.title, this.author, this.button);
+	    this.wrapper.append(this.cover);
+	    this.card.append(this.wrapper, this.content);
+	    return this.card;
+	  }
+	}
+
+	class Books {
+	  constructor(booksList) {
+	    this.books = booksList;
+	    this.section = new AbstractNode("section", ["books"]).create();
+	    this.title = new AbstractNode("h2", ["books__title"]).create();
+	    this.list = new AbstractNode("ul", ["books__list"]).create();
+	  }
+
+	  create() {
+	    if (this.books.length <= 0) {
+	      this.title.textContent = "Ничего не найдено";
+	      this.section.append(this.title);
+	      return this.section;
+	    }
+	    this.title.textContent = `Найдено книг - ${this.books.length}`;
+	    this.books = this.books.map((book) => {
+	      return new BookCard(book).create();
+	    });
+	    this.list.append(...this.books);
+	    this.section.prepend(this.title);
+	    this.section.append(this.list);
+	    return this.section;
+	  }
+
+	  update(newBooksList) {
+	    this.books = newBooksList;
+	    this.create();
 	  }
 	}
 
@@ -1136,17 +1197,44 @@
 	    super();
 	    this.appState = appState;
 	    this.appState = onChange(this.appState, this.appStateHook.bind(this));
+	    this.state = onChange(this.state, this.stateHook.bind(this));
 	    this.setTitle("Поиск книг");
 	    this.header = new Header(this.appState);
-	    this.search = new Search();
+	    this.search = new Search(this.state);
+	    this.books = new Books(this.state.list);
 	  }
 	  appStateHook(path) {
-	    console.log(path);
-	    this.header.updateCounter();
+	    if (path === "favorites") {
+	      this.header.updateCounter();
+	    }
+	  }
+	  async stateHook(path) {
+	    if (path === "searchQuery") {
+	      this.state.isLoading = true;
+	      const data = await this.load(this.state.searchQuery, this.state.offset);
+	      this.state.list = data.docs;
+	      this.state.isLoading = false;
+	    }
+	    if (path === "list") {
+	      this.books.update(this.state.list);
+	    }
+	    if (path === "isLoading") {
+	      this.state.isLoading
+	        ? this.app.classList.add("loading")
+	        : this.app.classList.remove("loading");
+	    }
 	  }
 	  render() {
 	    this.app.prepend(this.header.create());
 	    this.app.append(this.search.create());
+	    this.app.append(this.books.create());
+	  }
+	  async load(query, offset) {
+	    const res = await fetch(
+	      `https://openlibrary.org/search.json?q=${query}&offset=${offset}`
+	    );
+	    const data = await res.json();
+	    return data;
 	  }
 	}
 

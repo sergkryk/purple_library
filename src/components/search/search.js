@@ -2,7 +2,8 @@ import './search.css';
 import AbstractNode from "../../common/abstract-node";
 
 export default class Search {
-  constructor() {
+  constructor(state) {
+    this.state = state;
     this.form = new AbstractNode("form", ["search"]).create();
     this.wrapper = new AbstractNode("div", ["search__wrapper"]).create();
     this.input = new AbstractNode("input", ["search__input"]).create();
@@ -25,7 +26,11 @@ export default class Search {
     this.wrapper.append(this.button);
     this.wrapper.append(this.label);
     this.form.append(this.wrapper);
-
+    this.form.addEventListener('submit', this.submitHandler.bind(this));
     return this.form;
+  }
+  submitHandler(event) {
+    event.preventDefault();
+    this.state.searchQuery = this.input.value;
   }
 }

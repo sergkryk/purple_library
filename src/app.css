@@ -1,5 +1,40 @@
 .container {
   max-width: 1024px;
+  min-height: 100vh;
   margin: 0 auto;
   padding: 35px;
+}
+
+.loading {
+  position: relative;
+}
+
+.loading::before {
+  z-index: 100;
+  content: "";
+
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+
+
+  background-color: rgba(18, 18, 18, 0.5);
+}
+
+.loading::after {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  
+  z-index: 200;
+  content: "Загрузка данных...";
+
+  font-size: 24px;
+  line-height: 32px;
+  color: #ffffff;
+  text-shadow: 0 2px 2px #121212;
+
+  transform: translate(-50%, 50%);
 }
