@@ -9,7 +9,10 @@ export default class Books {
     this.title = new AbstractNode("h2", ["books__title"]).create();
     this.list = new AbstractNode("ul", ["books__list"]).create();
   }
-
+  clear() {
+    this.title.textContent = "";
+    this.list.innerHTML = "";
+  }
   create() {
     if (this.books.length <= 0) {
       this.title.textContent = "Ничего не найдено";
@@ -17,17 +20,14 @@ export default class Books {
       return this.section;
     }
     this.title.textContent = `Найдено книг - ${this.books.length}`;
-    this.books = this.books.map((book) => {
-      return new BookCard(book).create();
-    });
-    this.list.append(...this.books);
+    this.list.append(...this.books.map(book => new BookCard(book).create()));
     this.section.prepend(this.title);
     this.section.append(this.list);
     return this.section;
   }
-
   update(newBooksList) {
     this.books = newBooksList;
+    this.clear();
     this.create();
   }
 }

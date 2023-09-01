@@ -28,6 +28,7 @@ export default class MainView extends AbstractView {
   }
   async stateHook(path) {
     if (path === "searchQuery") {
+      this.books.clear();
       this.state.isLoading = true;
       const data = await this.load(this.state.searchQuery, this.state.offset);
       this.state.list = data.docs;
