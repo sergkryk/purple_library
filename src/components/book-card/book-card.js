@@ -65,4 +65,7 @@ export default class BookCard {
     this.card.append(this.wrapper, this.content);
     return this.card;
   }
+  destroy() {
+    this.card.remove();
+  }
 }

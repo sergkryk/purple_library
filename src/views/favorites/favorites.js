@@ -19,6 +19,7 @@ export default class FavoritesView extends AbstractView {
     }
   }
   render() {
+    this.books.setTitle("Избранные книги.");
     this.app.prepend(this.header.create());
     this.app.append(this.books.create());
   }

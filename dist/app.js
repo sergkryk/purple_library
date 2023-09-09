@@ -1336,36 +1336,54 @@
 	    this.card.append(this.wrapper, this.content);
 	    return this.card;
 	  }
+	  destroy() {
+	    this.card.remove();
+	  }
 	}
 
-	class Books {
-	  constructor(booksList, appState) {
-	    this.books = booksList;
-	    this.appState = appState;
-	    this.section = new AbstractNode("section", ["books"]).create();
-	    this.title = new AbstractNode("h2", ["books__title"]).create();
-	    this.list = new AbstractNode("ul", ["books__list"]).create();
+	class AbstractSection {
+	  constructor() {
+	    this.section = document.createElement("section");
+	    this.title = document.createElement("h1");
+	    this.section.prepend(this.title);
 	  }
-	  clear() {
-	    this.title.textContent = "";
-	    this.list.innerHTML = "";
+	  setTitle(title) {
+	    this.title.textContent = title;
 	  }
 	  create() {
+	    return this.section;
+	  }
+	  destroy() {
+	    this.section.remove();
+	  }
+	}
+
+	class Books extends AbstractSection {
+	  constructor(booksList, appState) {
+	    super();
+	    this.books = booksList;
+	    this.appState = appState;
+	    this.list = new AbstractNode("ul", ["books__list"]).create();
+	  }
+	  addToList() {
 	    if (this.books.length <= 0) {
-	      this.title.textContent = "Ничего не найдено";
-	      this.section.append(this.title);
-	      return this.section;
+	      return;
 	    }
-	    this.title.textContent = `Найдено книг - ${this.books.length}`;
-	    this.list.append(...this.books.map(book => new BookCard(book, this.appState).create()));
-	    this.section.prepend(this.title);
+	    this.list.append(
+	      ...this.books.map((book) => new BookCard(book, this.appState).create())
+	    );
+	  }
+	  create() {
+	    this.section.classList.add("books");
+	    this.title.classList.add("books__title");
+	    this.addToList();
 	    this.section.append(this.list);
 	    return this.section;
 	  }
 	  update(newBooksList) {
 	    this.books = newBooksList;
-	    this.clear();
-	    this.create();
+	    this.list.innerHTML = "";
+	    this.addToList();
 	  }
 	}
 
@@ -1385,6 +1403,7 @@
 	    }
 	  }
 	  render() {
+	    this.books.setTitle("Избранные книги.");
 	    this.app.prepend(this.header.create());
 	    this.app.append(this.books.create());
 	  }
@@ -1433,6 +1452,8 @@
 	    isLoading: false,
 	    searchQuery: null,
 	    offset: 0,
+	    limit: 9,
+	    numsFound: 0,
 	  };
 	  constructor(appState) {
 	    super();
@@ -1453,6 +1474,7 @@
 	    if (path === "searchQuery") {
 	      this.state.isLoading = true;
 	      const data = await this.load(this.state.searchQuery, this.state.offset);
+	      this.state.numsFound = data.numFound;
 	      this.state.list = data.docs;
 	      this.state.isLoading = false;
 	    }
@@ -1464,17 +1486,24 @@
 	        ? this.app.classList.add("loading")
 	        : this.app.classList.remove("loading");
 	    }
+	    if (path === "numsFound") {
+	      this.books.setTitle(
+	        this.state.numsFound > 0 ? `Найдено книг - ${this.state.numsFound}` : "Ничего не найдено."
+	      );
+	    }
 	  }
 	  render() {
+	    this.books.setTitle(this.state.numsFound > 0 ? this.state.numsFound : "Ничего не найдено.");
 	    this.app.prepend(this.header.create());
 	    this.app.append(this.search.create());
 	    this.app.append(this.books.create());
 	  }
-	  async load(query, offset) {
+	  async load() {
 	    const res = await fetch(
-	      `https://openlibrary.org/search.json?q=${query}&offset=${offset}`
+	      `https://openlibrary.org/search.json?q=${this.state.searchQuery}&offset=${this.state.offset}&limit=${this.state.limit}`
 	    );
 	    const data = await res.json();
+	    console.log(data);
 	    return data;
 	  }
 	}
