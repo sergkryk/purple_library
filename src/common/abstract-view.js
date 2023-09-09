@@ -9,6 +9,6 @@ export default class AbstractView {
     return;
   }
   destroy() {
-    return;
+    this.app.innerHTML = '';
   }
 }

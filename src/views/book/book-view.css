@@ -1,50 +1,56 @@
-.detailed {
+.book {
 }
-.detailed__title {
+.book__title {
   margin: 0 0 21px;
 
   font-size: 24px;
   line-height: 32px;
   font-weight: 600;
 }
-.detailed__base {
+.book__base {
   display: grid;
   gap: 20px;
   grid-template-columns: 165px 1fr;
 }
-.detailed__cover {
+.book__cover {
   width: 165px;
   height: 214px;
 
   object-fit: cover;
 }
-.detailed__cover img {
+.book__cover img {
   width: 100%;
   height: 100%;
 }
-.detailed__list {
+.book__info {
+  display: flex;
+  flex-flow: column nowrap;
+  align-items: flex-start;
+}
+.book__list {
   margin: 0 0 23px;
   padding: 0;
   list-style: none;
 }
-.detailed__item {
+.book__item {
   margin-bottom: 8px;
 
   display: flex;
   flex-flow: row nowrap;
 }
-.detailed__key {
+.book__key {
   margin-right: 5px;
   font-size: 14px;
   line-height: 22px;
   font-weight: 400;
 }
-.detailed__value {
+.book__value {
   font-size: 14px;
   line-height: 22px;
   font-weight: 700;
 }
-.detailed__favorites {
+.book__favorites {
+  margin-top: auto;
   min-width: 161px;
   min-height: 40px;
 
@@ -58,19 +64,19 @@
   line-height: 20px;
   font-weight: 600;
 }
-.detailed__subtitle {
+.book__subtitle {
   margin: 0;
   font-size: 14px;
   font-weight: 600;
   line-height: 32px;
 }
-.detailed__description {
+.book__description {
   margin: 0 0 21px;
   font-size: 14px;
   font-weight: 400;
   line-height: 22px;
 }
-.detailed__tags {
+.book__tags {
   margin: 0;
   padding: 0;
   list-style: none;
@@ -79,7 +85,7 @@
   flex-flow: row wrap;
   gap: 10px;
 }
-.detailed__tag {
+.book__tag {
   padding: 6px 8px;
   font-size: 14px;
   line-height: 20px;

@@ -19,7 +19,7 @@ export default class MainView extends AbstractView {
     this.setTitle("Поиск книг");
     this.header = new Header(this.appState);
     this.search = new Search(this.state);
-    this.books = new Books(this.state.list);
+    this.books = new Books(this.state.list, this.appState);
   }
   appStateHook(path) {
     if (path === "favorites") {

@@ -2,8 +2,9 @@ import "./book-card.css";
 import AbstractNode from "../../common/abstract-node";
 
 export default class BookCard {
-  constructor(book) {
+  constructor(book, appState) {
     this.book = book;
+    this.appState = appState;
     this.card = new AbstractNode("li", ["books__list-item", "book-card"]).create();
     this.title = new AbstractNode("h3", ["book-card__title"]).create();
     this.genre = new AbstractNode("p", ["book-card__genre"]).create();
@@ -15,11 +16,13 @@ export default class BookCard {
   }
 
   titleClickHandler() {
-    window.location.href = `#details?key=${this.book.key}`;
+    console.log('card: ', this.book);
+    window.location.href = `#book?key=${this.book.key}`;
   }
 
   favoritesClickHandler() {
-    console.log("added");
+    this.appState.favorites = this.book;
+    this.card.classList.add("book-card--favorite");
   }
 
   setListeners() {
