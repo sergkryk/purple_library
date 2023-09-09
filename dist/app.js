@@ -1240,8 +1240,8 @@
 	    }
 	  }
 	  async render() {
-	    await this.load();
 	    this.app.prepend(this.header.create());
+	    await this.load();
 	    this.setTitle();
 	    this.setBase();
 	    this.setDescription();
@@ -1451,7 +1451,6 @@
 	  }
 	  async stateHook(path) {
 	    if (path === "searchQuery") {
-	      this.books.clear();
 	      this.state.isLoading = true;
 	      const data = await this.load(this.state.searchQuery, this.state.offset);
 	      this.state.list = data.docs;

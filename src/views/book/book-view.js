@@ -69,8 +69,8 @@ export default class BookView extends AbstractView {
     }
   }
   async render() {
-    await this.load();
     this.app.prepend(this.header.create());
+    await this.load();
     this.setTitle();
     this.setBase();
     this.setDescription();
