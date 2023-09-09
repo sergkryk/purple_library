@@ -5,24 +5,28 @@ export default class BookCard {
   constructor(book, appState) {
     this.book = book;
     this.appState = appState;
-    this.card = new AbstractNode("li", ["books__list-item", "book-card"]).create();
+    this.card = new AbstractNode("li", [
+      "books__list-item",
+      "book-card",
+    ]).create();
     this.title = new AbstractNode("h3", ["book-card__title"]).create();
     this.genre = new AbstractNode("p", ["book-card__genre"]).create();
     this.author = new AbstractNode("p", ["book-card__author"]).create();
     this.button = new AbstractNode("button", ["book-card__favorite"]).create();
     this.cover = new AbstractNode("img", ["book-card__cover"]).create();
     this.content = new AbstractNode("div", ["book-card__content"]).create();
-    this.wrapper = new AbstractNode("div", ["book-card__cover-wrapper"]).create();
+    this.wrapper = new AbstractNode("div", [
+      "book-card__cover-wrapper",
+    ]).create();
   }
 
   titleClickHandler() {
-    console.log('card: ', this.book);
     window.location.href = `#book?key=${this.book.key}`;
   }
 
   favoritesClickHandler() {
     this.appState.favorites = this.book;
-    this.card.classList.add("book-card--favorite");
+    this.card.classList.toggle("book-card--favorite");
   }
 
   setListeners() {
@@ -46,11 +50,16 @@ export default class BookCard {
     this.genre.textContent = this.book?.subject ? this.book.subject[0] : "";
     this.button.innerHTML = `<svg width="20" height="20" viewBox="0 0 20 20"><use xlink:href="#icon-favorites"></use></svg>`;
   }
-
+  isFavorite() {
+    if (this.appState.favorites.find((el) => el.key === this.book.key)) {
+      this.card.classList.add("book-card--favorite");
+    }
+  }
   create() {
     this.setListeners();
     this.setCoverSrc();
     this.setContent();
+    this.isFavorite()
     this.content.append(this.genre, this.title, this.author, this.button);
     this.wrapper.append(this.cover);
     this.card.append(this.wrapper, this.content);

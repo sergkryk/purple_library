@@ -1049,7 +1049,7 @@
       <div class="nav__item-logo">
         <svg width="20" height="20" fill="none"><use xlink:href="#icon-favorites"></use></svg>
       </div>
-      <a href="#" class="nav__item-link">Избранное</a>`;
+      <a href="#favorites" class="nav__item-link">Избранное</a>`;
 	    this.element.appendChild(this.counter.create());
 	    return this.element;
 	  }
@@ -1178,7 +1178,7 @@
 	  }
 	}
 
-	class DetailedView extends AbstractView {
+	class BookView extends AbstractView {
 	  state = {
 	    isLoading: false,
 	  };
@@ -1219,7 +1219,7 @@
 	    this.section.prepend(this.title);
 	  }
 	  setBase() {
-	    this.button.textContent = "В ибзбранное";
+	    this.button.textContent = "В избранное";
 	    this.button.setAttribute("type", "button");
 	    this.cover.innerHTML = `<img src="https://covers.openlibrary.org/b/id/${this.book.cover_i}-L.jpg" alt="Превью обложки" />`;
 	    const info = new BookInfo(this.book).create();
@@ -1272,62 +1272,32 @@
 	  }
 	}
 
-	class Search {
-	  constructor(state) {
-	    this.state = state;
-	    this.form = new AbstractNode("form", ["search"]).create();
-	    this.wrapper = new AbstractNode("div", ["search__wrapper"]).create();
-	    this.input = new AbstractNode("input", ["search__input"]).create();
-	    this.label = new AbstractNode("label", ["search__label"]).create();
-	    this.button = new AbstractNode("button", ["search__button"]).create();
-	  }
-
-	  create() {
-	    this.button.innerHTML =
-	      '<svg width="32" height="32" viewBox="0 0 20 20"><use xlink:href="#icon-search"></use></svg>';
-	    this.label.innerHTML =
-	      '<svg width="24" height="24" viewBox="0 0 20 20"><use xlink:href="#icon-search"></use></svg>';
-	    this.label.setAttribute("for", "search");
-	    this.button.setAttribute("type", "submit");
-	    this.input.setAttribute("type", "text");
-	    this.input.setAttribute("name", "user-query");
-	    this.input.setAttribute("id", "search");
-	    this.input.setAttribute("placeholder", "Найти книгу или автора...");
-	    this.wrapper.prepend(this.input);
-	    this.wrapper.append(this.button);
-	    this.wrapper.append(this.label);
-	    this.form.append(this.wrapper);
-	    this.form.addEventListener('submit', this.submitHandler.bind(this));
-	    return this.form;
-	  }
-	  submitHandler(event) {
-	    event.preventDefault();
-	    this.state.searchQuery = this.input.value;
-	  }
-	}
-
 	class BookCard {
 	  constructor(book, appState) {
 	    this.book = book;
 	    this.appState = appState;
-	    this.card = new AbstractNode("li", ["books__list-item", "book-card"]).create();
+	    this.card = new AbstractNode("li", [
+	      "books__list-item",
+	      "book-card",
+	    ]).create();
 	    this.title = new AbstractNode("h3", ["book-card__title"]).create();
 	    this.genre = new AbstractNode("p", ["book-card__genre"]).create();
 	    this.author = new AbstractNode("p", ["book-card__author"]).create();
 	    this.button = new AbstractNode("button", ["book-card__favorite"]).create();
 	    this.cover = new AbstractNode("img", ["book-card__cover"]).create();
 	    this.content = new AbstractNode("div", ["book-card__content"]).create();
-	    this.wrapper = new AbstractNode("div", ["book-card__cover-wrapper"]).create();
+	    this.wrapper = new AbstractNode("div", [
+	      "book-card__cover-wrapper",
+	    ]).create();
 	  }
 
 	  titleClickHandler() {
-	    console.log('card: ', this.book);
 	    window.location.href = `#book?key=${this.book.key}`;
 	  }
 
 	  favoritesClickHandler() {
 	    this.appState.favorites = this.book;
-	    this.card.classList.add("book-card--favorite");
+	    this.card.classList.toggle("book-card--favorite");
 	  }
 
 	  setListeners() {
@@ -1351,11 +1321,16 @@
 	    this.genre.textContent = this.book?.subject ? this.book.subject[0] : "";
 	    this.button.innerHTML = `<svg width="20" height="20" viewBox="0 0 20 20"><use xlink:href="#icon-favorites"></use></svg>`;
 	  }
-
+	  isFavorite() {
+	    if (this.appState.favorites.find((el) => el.key === this.book.key)) {
+	      this.card.classList.add("book-card--favorite");
+	    }
+	  }
 	  create() {
 	    this.setListeners();
 	    this.setCoverSrc();
 	    this.setContent();
+	    this.isFavorite();
 	    this.content.append(this.genre, this.title, this.author, this.button);
 	    this.wrapper.append(this.cover);
 	    this.card.append(this.wrapper, this.content);
@@ -1391,6 +1366,64 @@
 	    this.books = newBooksList;
 	    this.clear();
 	    this.create();
+	  }
+	}
+
+	class FavoritesView extends AbstractView {
+	  constructor(appState) {
+	    super();
+	    this.appState = appState;
+	    this.appState = onChange(this.appState, this.appStateHook.bind(this));
+	    this.header = new Header(this.appState);
+	    this.books = new Books(this.appState.favorites, this.appState);
+	  }
+
+	  appStateHook(path) {
+	    if (path === "favorites") {
+	      this.header.updateCounter();
+	      this.update();
+	    }
+	  }
+	  render() {
+	    this.app.prepend(this.header.create());
+	    this.app.append(this.books.create());
+	  }
+	  update() {
+	    this.books.update(this.appState.favorites);
+	  }
+	}
+
+	class Search {
+	  constructor(state) {
+	    this.state = state;
+	    this.form = new AbstractNode("form", ["search"]).create();
+	    this.wrapper = new AbstractNode("div", ["search__wrapper"]).create();
+	    this.input = new AbstractNode("input", ["search__input"]).create();
+	    this.label = new AbstractNode("label", ["search__label"]).create();
+	    this.button = new AbstractNode("button", ["search__button"]).create();
+	  }
+
+	  create() {
+	    this.button.innerHTML =
+	      '<svg width="32" height="32" viewBox="0 0 20 20"><use xlink:href="#icon-search"></use></svg>';
+	    this.label.innerHTML =
+	      '<svg width="24" height="24" viewBox="0 0 20 20"><use xlink:href="#icon-search"></use></svg>';
+	    this.label.setAttribute("for", "search");
+	    this.button.setAttribute("type", "submit");
+	    this.input.setAttribute("type", "text");
+	    this.input.setAttribute("name", "user-query");
+	    this.input.setAttribute("id", "search");
+	    this.input.setAttribute("placeholder", "Найти книгу или автора...");
+	    this.wrapper.prepend(this.input);
+	    this.wrapper.append(this.button);
+	    this.wrapper.append(this.label);
+	    this.form.append(this.wrapper);
+	    this.form.addEventListener('submit', this.submitHandler.bind(this));
+	    return this.form;
+	  }
+	  submitHandler(event) {
+	    event.preventDefault();
+	    this.state.searchQuery = this.input.value;
 	  }
 	}
 
@@ -1450,7 +1483,8 @@
 	class App {
 	  routes = [
 	    { path: "", view: MainView },
-	    { path: "#book", view: DetailedView },
+	    { path: "#book", view: BookView },
+	    { path: "#favorites", view: FavoritesView },
 	  ];
 	  appState = {
 	    _favorites: [],
@@ -1471,9 +1505,7 @@
 	  }
 	  route() {
 	    this.currentView?.destroy();
-	    const view = this.routes.find(
-	      (route) => route.path == location.hash.split("?")[0]
-	    ).view;
+	    const view = this.routes.find(route => route.path == location.hash.split("?")[0]).view;
 	    this.currentView = new view(this.appState);
 	    this.currentView.render();
 	  }

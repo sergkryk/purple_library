@@ -10,7 +10,7 @@ export default class HeaderFavorites {
       <div class="nav__item-logo">
         <svg width="20" height="20" fill="none"><use xlink:href="#icon-favorites"></use></svg>
       </div>
-      <a href="#" class="nav__item-link">Избранное</a>`;
+      <a href="#favorites" class="nav__item-link">Избранное</a>`;
     this.element.appendChild(this.counter.create());
     return this.element;
   }

@@ -7,7 +7,7 @@ import Tags from "../../components/book-tags/book-tags.js";
 import Description from "../../components/book-description/book-description.js";
 import BookInfo from "../../components/book-info/book-info.js";
 
-export default class DetailedView extends AbstractView {
+export default class BookView extends AbstractView {
   state = {
     isLoading: false,
   };
@@ -48,7 +48,7 @@ export default class DetailedView extends AbstractView {
     this.section.prepend(this.title);
   }
   setBase() {
-    this.button.textContent = "В ибзбранное";
+    this.button.textContent = "В избранное";
     this.button.setAttribute("type", "button");
     this.cover.innerHTML = `<img src="https://covers.openlibrary.org/b/id/${this.book.cover_i}-L.jpg" alt="Превью обложки" />`;
     const info = new BookInfo(this.book).create();

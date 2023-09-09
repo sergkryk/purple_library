@@ -1,12 +1,14 @@
 import "./app.css";
 import "./normalize.css";
-import DetailedView from "./views/book/book-view.js";
+import BookView from "./views/book/book-view.js";
+import FavoritesView from "./views/favorites/favorites.js";
 import MainView from "./views/main/main-view.js";
 
 class App {
   routes = [
     { path: "", view: MainView },
-    { path: "#book", view: DetailedView },
+    { path: "#book", view: BookView },
+    { path: "#favorites", view: FavoritesView },
   ];
   appState = {
     _favorites: [],
@@ -27,9 +29,7 @@ class App {
   }
   route() {
     this.currentView?.destroy();
-    const view = this.routes.find(
-      (route) => route.path == location.hash.split("?")[0]
-    ).view;
+    const view = this.routes.find(route => route.path == location.hash.split("?")[0]).view;
     this.currentView = new view(this.appState);
     this.currentView.render();
   }
