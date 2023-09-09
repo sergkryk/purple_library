@@ -1387,28 +1387,52 @@
 	  }
 	}
 
+	class FavoriteCard extends BookCard {
+	  constructor(book, appState) {
+	    super(book, appState);
+	  }
+	  favoritesClickHandler() {
+	    this.appState.favorites = this.book;
+	    if (this.appState.favorites.find(el => el.key === this.book.key)) {
+	      this.card.classList.toggle("book-card--favorite");
+	      return;
+	    }
+	    this.destroy();
+	  }
+	}
+
+	class FavoriteBooks extends Books {
+	  constructor(booksList, appState) {
+	    super(booksList, appState);
+	  }
+	  addToList() {
+	    if (this.books.length <= 0) {
+	      return;
+	    }
+	    this.list.append(
+	      ...this.books.map((book) => new FavoriteCard(book, this.appState).create())
+	    );
+	  }
+	}
+
 	class FavoritesView extends AbstractView {
 	  constructor(appState) {
 	    super();
 	    this.appState = appState;
 	    this.appState = onChange(this.appState, this.appStateHook.bind(this));
 	    this.header = new Header(this.appState);
-	    this.books = new Books(this.appState.favorites, this.appState);
+	    this.books = new FavoriteBooks(this.appState.favorites, this.appState);
 	  }
 
 	  appStateHook(path) {
 	    if (path === "favorites") {
 	      this.header.updateCounter();
-	      this.update();
 	    }
 	  }
 	  render() {
 	    this.books.setTitle("Избранные книги.");
 	    this.app.prepend(this.header.create());
 	    this.app.append(this.books.create());
-	  }
-	  update() {
-	    this.books.update(this.appState.favorites);
 	  }
 	}
 

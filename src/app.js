@@ -1,7 +1,7 @@
 import "./app.css";
 import "./normalize.css";
 import BookView from "./views/book/book-view.js";
-import FavoritesView from "./views/favorites/favorites.js";
+import FavoritesView from "./views/favorites/favorites-view.js";
 import MainView from "./views/main/main-view.js";
 
 class App {
