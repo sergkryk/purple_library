@@ -1470,6 +1470,78 @@
 	  }
 	}
 
+	class Pagination {
+	  constructor(parentState) {
+	    this.parentState = parentState;
+	    this.pagination = new AbstractNode("div", ["pagination"]).create();
+	    this.previous = new AbstractNode("button", [
+	      "pagination__button",
+	      "pagination__button--prev",
+	    ]).create();
+	    this.next = new AbstractNode("button", [
+	      "pagination__button",
+	      "pagination__button--next",
+	    ]).create();
+	  }
+	  previousClickHandler() {
+	    this.parentState.offset =
+	      this.parentState.offset - this.parentState.offsetStep;
+	    this.next.removeAttribute("disabled");
+	    if (this.parentState.offset - this.parentState.offsetStep < 0) {
+	      this.previous.setAttribute("disabled", true);
+	    }
+	  }
+	  nextClickHandler() {
+	    this.parentState.offset =
+	      this.parentState.offset + this.parentState.offsetStep;
+	    this.previous.removeAttribute("disabled");
+	    if (
+	      this.parentState.offset + this.parentState.offsetStep >=
+	      this.parentState.numsFound
+	    ) {
+	      this.next.setAttribute("disabled", true);
+	    }
+	  }
+	  setContent() {
+	    this.previous.innerHTML = `
+    <svg width="20" height="20" viewBox="0 0 20 20">
+      <use xlink:href="#icon-arrow">
+    </svg>
+    <span>Предыдущая страница</span>`;
+	    this.next.innerHTML = `
+    <span>Следующая страница</span>
+    <svg width="20" height="20" viewBox="0 0 20 20">
+      <use xlink:href="#icon-arrow">
+    </svg>`;
+	  }
+	  setAttributes() {
+	    this.previous.setAttribute("type", "button");
+	    this.previous.setAttribute("aria-label", "Предыдущая страница");
+	    this.next.setAttribute("type", "button");
+	    this.next.setAttribute("aria-label", "Следующая страница");
+	  }
+	  addListeners() {
+	    this.previous.addEventListener(
+	      "click",
+	      this.previousClickHandler.bind(this)
+	    );
+	    this.next.addEventListener("click", this.nextClickHandler.bind(this));
+	  }
+	  create() {
+	    if (this.parentState.offset === 0) {
+	      this.previous.setAttribute("disabled", true);
+	    }
+	    this.setContent();
+	    this.setAttributes();
+	    this.addListeners();
+	    this.pagination.append(this.previous, this.next);
+	    return this.pagination;
+	  }
+	  destroy() {
+	    this.pagination.remove();
+	  }
+	}
+
 	class MainView extends AbstractView {
 	  state = {
 	    list: [],
@@ -1478,6 +1550,7 @@
 	    offset: 0,
 	    limit: 9,
 	    numsFound: 0,
+	    offsetStep: 9,
 	  };
 	  constructor(appState) {
 	    super();
@@ -1494,12 +1567,26 @@
 	      this.header.updateCounter();
 	    }
 	  }
+	  async fetchBooks() {
+	    const data = await this.load();
+	    this.state.numsFound = data.numFound;
+	    this.state.list = data.docs;
+	  }
 	  async stateHook(path) {
 	    if (path === "searchQuery") {
 	      this.state.isLoading = true;
-	      const data = await this.load(this.state.searchQuery, this.state.offset);
-	      this.state.numsFound = data.numFound;
-	      this.state.list = data.docs;
+	      await this.fetchBooks();
+	      this.state.offset = 0;
+	      this.pagination?.destroy();
+	      this.renderPagination();
+	      this.state.isLoading = false;
+	    }
+	    if (path === "offset") {
+	      if (this.state.isLoading) {
+	        return;
+	      }
+	      this.state.isLoading = true;
+	      await this.fetchBooks();
 	      this.state.isLoading = false;
 	    }
 	    if (path === "list") {
@@ -1512,22 +1599,30 @@
 	    }
 	    if (path === "numsFound") {
 	      this.books.setTitle(
-	        this.state.numsFound > 0 ? `Найдено книг - ${this.state.numsFound}` : "Ничего не найдено."
+	        this.state.numsFound > 0
+	          ? `Найдено книг - ${this.state.numsFound}`
+	          : "Ничего не найдено."
 	      );
 	    }
 	  }
+	  renderPagination() {
+	    if (this.state.numsFound > 0 && this.state.numsFound > this.state.limit) {
+	      this.pagination = new Pagination(this.state);
+	      this.app.append(this.pagination.create());
+	    }
+	  }
 	  render() {
-	    this.books.setTitle(this.state.numsFound > 0 ? this.state.numsFound : "Ничего не найдено.");
+	    this.books.setTitle(
+	      this.state.numsFound > 0 ? this.state.numsFound : "Ничего не найдено."
+	    );
 	    this.app.prepend(this.header.create());
-	    this.app.append(this.search.create());
-	    this.app.append(this.books.create());
+	    this.app.append(this.search.create(), this.books.create());
 	  }
 	  async load() {
 	    const res = await fetch(
 	      `https://openlibrary.org/search.json?q=${this.state.searchQuery}&offset=${this.state.offset}&limit=${this.state.limit}`
 	    );
 	    const data = await res.json();
-	    console.log(data);
 	    return data;
 	  }
 	}

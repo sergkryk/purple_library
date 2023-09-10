@@ -583,6 +583,7 @@ template {
 
 .books__list {
   margin: 0;
+  margin-bottom: 30px;
   padding: 0;
   list-style: none;
   
@@ -749,4 +750,34 @@ template {
   height: 32px;
 
   color: #ffffff;
+}
+.pagination {
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: space-between;
+}
+.pagination__button {
+  border: none;
+  background-color: transparent;
+
+  display: flex;
+  flex-flow: row nowrap;
+  gap: 10px;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 400;
+}
+.pagination__button--next svg {
+  transform: rotateZ(180deg);
+}
+.pagination__button svg {
+  width: 20px;
+  height: 20px;
+}
+.pagination__button [disabled="true"] {
+  pointer-events: none;
+  opacity: 0.5;
 }
